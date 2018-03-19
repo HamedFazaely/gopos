@@ -6,7 +6,7 @@ import (
 )
 
 func splitNumberString(val string) ([]byte, error) {
-	if !isASCII(val) {
+	if !IsASCII(val) {
 		return nil, fmt.Errorf("%s should only contain ascii characters", val)
 	}
 	result := make([]byte, len(val))
@@ -20,7 +20,7 @@ func splitNumberString(val string) ([]byte, error) {
 	return result, nil
 }
 
-func isASCII(s string) bool {
+func IsASCII(s string) bool {
 	for _, r := range s {
 		if r > 127 {
 			return false
