@@ -2,7 +2,7 @@ package misc
 
 import (
 	"fmt"
-	"gopos/iso"
+	"github.com/HamedFazaely/gopos/iso"
 )
 
 type ISOBitmap struct {

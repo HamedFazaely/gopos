@@ -1,7 +1,7 @@
 package packer
 
 import (
-	"gopos/iso"
+	"github.com/HamedFazaely/gopos/iso"
 
 	"fmt"
 )

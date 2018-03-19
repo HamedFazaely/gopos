@@ -2,7 +2,7 @@ package util
 
 import (
 	"fmt"
-	"gopos/iso"
+	"github.com/HamedFazaely/gopos/iso"
 	"sort"
 )
 

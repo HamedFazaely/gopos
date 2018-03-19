@@ -1,9 +1,9 @@
 package packer
 
 import (
-	"gopos/iso"
-	"gopos/iso/misc"
-	"gopos/iso/util"
+	"github.com/HamedFazaely/gopos/iso"
+	"github.com/HamedFazaely/gopos/iso/misc"
+	"github.com/HamedFazaely/gopos/iso/util"
 )
 
 type ISOMessagePacker struct {
