@@ -1,5 +1,6 @@
 package iso
 
+//childField provides primary functionality and fields of a childField
 type childField struct{}
 
 func (cf *childField) AddComponent(fno int, c Component) bool {
@@ -18,11 +19,12 @@ func (cf *childField) GetChildren() map[int]Component {
 	panic("A child filed has no children")
 }
 
+//baseComponent provides primary functionality and fields of an ISOField
 type baseComponent struct {
 	FieldNo   int
 	MaxLength int
 	Value     string
-	IsComp bool
+	IsComp    bool
 }
 
 func (b *baseComponent) GetKey() int {
