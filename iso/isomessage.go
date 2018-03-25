@@ -1,7 +1,5 @@
 package iso
 
-
-
 //Message is an iso message
 type Message struct {
 	baseComponent
@@ -9,14 +7,16 @@ type Message struct {
 	packer   Packer
 }
 
-//SetPacker sets a packer for the message
-func (m *Message) SetPacker(p Packer) {
-	m.packer = p
+//NewISOMsg is an ISOMessage factory
+func NewISOMsg(pcker Packer) *Message {
+	return &Message{
+		children: make(map[int]Component),
+		packer:   pcker,
+	}
 }
 
 //AddComponent adds a field to message
 func (m *Message) AddComponent(fno int, c Component) bool {
-	initMessageIfNot(m)
 	_, exists := m.children[fno]
 
 	if exists { // field exists already, just return false
@@ -31,7 +31,6 @@ func (m *Message) AddComponent(fno int, c Component) bool {
 
 //RemoveComponent removes field by number
 func (m *Message) RemoveComponent(fno int) bool {
-	initMessageIfNot(m)
 	_, exists := m.children[fno]
 	if exists {
 		delete(m.children, fno)
@@ -42,26 +41,18 @@ func (m *Message) RemoveComponent(fno int) bool {
 
 //GetComponent ...
 func (m *Message) GetComponent(fno int) (Component, bool) {
-	initMessageIfNot(m)
+
 	c, exists := m.children[fno]
 	return c, exists
 }
 
 //GetChildren ...
 func (m *Message) GetChildren() map[int]Component {
-	initMessageIfNot(m)
 	return m.children
 }
 
 //Pack ...
 func (m *Message) Pack() ([]byte, error) {
-	initMessageIfNot(m)
+
 	return m.packer.Pack(m)
-}
-
-
-func initMessageIfNot(m *Message) {
-	if m.children == nil {
-		m.children = make(map[int]Component)
-	}
 }

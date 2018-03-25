@@ -7,9 +7,11 @@ type Field struct {
 	packer Packer
 }
 
-//SetPacker sets a packer for this field
-func (f *Field) SetPacker(p Packer) {
-	f.packer = p
+//NewISOField is an ISOField factory
+func NewISOField(pckr Packer) *Field {
+	return &Field{
+		packer: pckr,
+	}
 }
 
 //Pack packs the field
