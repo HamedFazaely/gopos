@@ -1,20 +1,34 @@
 package misc
 
 import (
-	"fmt"
 	"github.com/HamedFazaely/gopos/iso"
+	"github.com/HamedFazaely/gopos/iso/ierrors"
+	"github.com/HamedFazaely/gopos/iso/logger"
+	"github.com/HamedFazaely/gopos/iso/util"
 )
 
+//ISOBitmap implements Bitmap interface
 type ISOBitmap struct {
+	logger logger.Logger
 }
 
+//NewBitMap is bitmap factory
+func NewBitMap(lgr logger.Logger) *ISOBitmap {
+	return &ISOBitmap{
+		logger: lgr,
+	}
+}
+
+//Compute simply computes the bitmap
 func (b *ISOBitmap) Compute(c iso.Component) ([]byte, error) {
 	max, err := getMaxField(c)
 	if err != nil {
+		b.logger.Log(logger.Info|logger.Trace, err.Error())
 		return nil, err
 	}
 	if max > 128 {
-		panic("only 128 length bitmap is supported")
+		b.logger.Log(logger.Trace|logger.Warning, ierrors.TooLongBitmap)
+		panic(ierrors.TooLongBitmap)
 	}
 	bml := 8
 	if max > 64 {
@@ -27,6 +41,7 @@ func (b *ISOBitmap) Compute(c iso.Component) ([]byte, error) {
 	for fno := range c.GetChildren() {
 		setBit(fno, arr)
 	}
+	b.logger.Log(logger.Trace|logger.Info, "bitmap generated %s", util.BArrToString(arr))
 	return arr, nil
 
 }
@@ -40,18 +55,20 @@ func setBit(fno int, bm []byte) {
 			bitPos = uint8(7)
 			idx--
 		}
-		bm[idx] ^= byte(0x80 >> bitPos)
+		bm[idx] |= byte(0x80 >> bitPos)
 	}
 
 }
 
 func getMaxField(c iso.Component) (int, error) {
 	if !c.IsComposite() {
-		return 0, fmt.Errorf("leaf fields do not have any children")
+		return 0, ierrors.ErrLeafCompNoChild
 	}
-	fnos := make([]int, len(c.GetChildren()))
-	for n := range c.GetChildren() {
-		fnos = append(fnos, n)
+	max := 0
+	for fno := range c.GetChildren() {
+		if fno > max {
+			max = fno
+		}
 	}
-	return fnos[len(fnos)-1], nil
+	return max, nil
 }
