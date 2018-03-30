@@ -1,24 +1,36 @@
 package packer
 
 import (
-	"fmt"
-
 	"github.com/HamedFazaely/gopos/iso"
-	"github.com/HamedFazaely/gopos/iso/util"
+	"github.com/HamedFazaely/gopos/iso/ierrors"
+	"github.com/HamedFazaely/gopos/iso/logger"
 )
 
 //FixedLengthASCII packs a fixed length field into ASCII
 type FixedLengthASCII struct {
+	packerBase
 }
 
-func (fla FixedLengthASCII) Pack(c iso.Component) ([]byte, error) {
+//NewFixedLengthASCII is a factory
+func NewFixedLengthASCII(lgr logger.Logger) *FixedLengthASCII {
+	return &FixedLengthASCII{
+		packerBase: packerBase{
+			Logger: lgr,
+		},
+	}
+}
 
-	if ascii := util.IsASCII(c.GetValue()); !ascii {
-		return nil, fmt.Errorf(ENCODING_ERROR)
+//Pack packs fixed length ascii field
+func (fla *FixedLengthASCII) Pack(c iso.Component) ([]byte, error) {
+
+	if ascii := fla.IsASCII(c.GetValue()); !ascii {
+		fla.logMessage(ierrors.ErrEncodingError, c)
+		return nil, ierrors.ErrEncodingError
 	}
 
 	if len(c.GetValue()) != c.GetMaxLength() {
-		return nil, fmt.Errorf(LENGTH_MISSMATCH_ERROR)
+		fla.logMessage(ierrors.ErrLengthMissMatch, c)
+		return nil, ierrors.ErrLengthMissMatch
 	}
 	return []byte(c.GetValue()), nil
 

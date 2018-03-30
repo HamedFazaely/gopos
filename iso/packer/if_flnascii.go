@@ -1,22 +1,34 @@
 package packer
 
 import (
-	"fmt"
-
 	"github.com/HamedFazaely/gopos/iso"
-	"github.com/HamedFazaely/gopos/iso/util"
+	"github.com/HamedFazaely/gopos/iso/ierrors"
+	"github.com/HamedFazaely/gopos/iso/logger"
 )
 
-//FixedLEngthNumberASCIIPacker packs a fixed length number to ascii
+//FixedLengthNumberASCIIPacker packs a fixed length number to ascii
 type FixedLengthNumberASCIIPacker struct {
+	packerBase
 }
 
-func (flnap FixedLengthNumberASCIIPacker) Pack(c iso.Component) ([]byte, error) {
-	if numeric := util.IsNumericString(c.GetValue()); !numeric {
-		return nil, fmt.Errorf(NOT_NUMERIC_STRING_ERROR)
+//NewFixedLengthNumberASCIIPacker is a factory
+func NewFixedLengthNumberASCIIPacker(lgr logger.Logger) *FixedLengthNumberASCIIPacker {
+	return &FixedLengthNumberASCIIPacker{
+		packerBase: packerBase{
+			Logger: lgr,
+		},
+	}
+}
+
+//Pack packs the field
+func (flnap *FixedLengthNumberASCIIPacker) Pack(c iso.Component) ([]byte, error) {
+	if numeric := flnap.IsNumericString(c.GetValue()); !numeric {
+		flnap.logMessage(ierrors.ErrNotDigit, c)
+		return nil, ierrors.ErrNotDigit
 	}
 	if len(c.GetValue()) != c.GetMaxLength() {
-		return nil, fmt.Errorf(LENGTH_MISSMATCH_ERROR)
+		flnap.logMessage(ierrors.ErrLengthMissMatch, c)
+		return nil, ierrors.ErrLengthMissMatch
 	}
 	return []byte(c.GetValue()), nil
 }

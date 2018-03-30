@@ -1,37 +1,48 @@
 package packer
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/HamedFazaely/gopos/iso"
-	"github.com/HamedFazaely/gopos/iso/util"
+	"github.com/HamedFazaely/gopos/iso/ierrors"
+	"github.com/HamedFazaely/gopos/iso/logger"
 )
 
 type LVARASCIIStringPacker struct {
-	LengthFormat LenFormat
+	packerBase
+	lfmt LengthFormatter
+}
+
+//NewLVARASCIIStringPacker is a factory
+func NewLVARASCIIStringPacker(lgr logger.Logger, lf LengthFormatter) *LVARASCIIStringPacker {
+	return &LVARASCIIStringPacker{
+		packerBase: packerBase{
+			Logger: lgr,
+		},
+		lfmt: lf,
+	}
 }
 
 func (lvasp *LVARASCIIStringPacker) Pack(c iso.Component) ([]byte, error) {
-	if ascii := util.IsASCII(c.GetValue()); !ascii {
-		return nil, fmt.Errorf(ENCODING_ERROR)
+
+	if ascii := lvasp.IsASCII(c.GetValue()); !ascii {
+		lvasp.logMessage(ierrors.ErrNoneASCIIValue, c)
+		return nil, ierrors.ErrNoneASCIIValue
 	}
-	if c.GetMaxLength() > 9 || len(c.GetValue()) > c.GetMaxLength() {
-		return nil, fmt.Errorf(LENGTH_MISSMATCH_ERROR)
+
+	if c.GetMaxLength() > 9 {
+		lvasp.logMessage(ierrors.ErrPackerNotCompatible, c)
+		return nil, ierrors.ErrPackerNotCompatible
 	}
-	var l []byte
-	ns := strconv.FormatInt(int64(len(c.GetValue())), 10)
-	switch lvasp.LengthFormat {
-	case ASCII:
-		l = []byte(ns)
-		break
-	case BCD:
-		r, err := util.ASCIIToBCD(ns)
-		if err != nil {
-			return nil, err
-		}
-		l = r
-		break
+
+	if len(c.GetValue()) > c.GetMaxLength() {
+		lvasp.logMessage(ierrors.ErrLengthMissMatch, c)
+		return nil, ierrors.ErrLengthMissMatch
+	}
+
+	ns := lvasp.numToString(len(c.GetValue()))
+	l, err := lvasp.lfmt.Format(ns)
+	if err != nil {
+		lvasp.logMessage(err, c)
+		return nil, err
 	}
 
 	l = append(l, []byte(c.GetValue())...)
