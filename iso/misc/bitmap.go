@@ -9,13 +9,13 @@ import (
 
 //ISOBitmap implements Bitmap interface
 type ISOBitmap struct {
-	logger logger.Logger
+	logger.Logger
 }
 
 //NewBitMap is bitmap factory
 func NewBitMap(lgr logger.Logger) *ISOBitmap {
 	return &ISOBitmap{
-		logger: lgr,
+		Logger: lgr,
 	}
 }
 
@@ -23,11 +23,11 @@ func NewBitMap(lgr logger.Logger) *ISOBitmap {
 func (b *ISOBitmap) Compute(c iso.Component) ([]byte, error) {
 	max, err := getMaxField(c)
 	if err != nil {
-		b.logger.Log(logger.Info|logger.Trace, err.Error())
+		b.Log(logger.Info|logger.Trace, err.Error())
 		return nil, err
 	}
 	if max > 128 {
-		b.logger.Log(logger.Trace|logger.Warning, ierrors.TooLongBitmap)
+		b.Log(logger.Trace|logger.Warning, ierrors.TooLongBitmap)
 		panic(ierrors.TooLongBitmap)
 	}
 	bml := 8
@@ -41,7 +41,7 @@ func (b *ISOBitmap) Compute(c iso.Component) ([]byte, error) {
 	for fno := range c.GetChildren() {
 		setBit(fno, arr)
 	}
-	b.logger.Log(logger.Trace|logger.Info, "bitmap generated %s", util.BArrToString(arr))
+	b.Log(logger.Trace|logger.Info, "bitmap generated %s", util.BArrToString(arr))
 	return arr, nil
 
 }

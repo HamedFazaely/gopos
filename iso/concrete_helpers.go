@@ -1,5 +1,9 @@
 package iso
 
+import (
+	"github.com/HamedFazaely/gopos/iso/logger"
+)
+
 //childField provides primary functionality and fields of a childField
 type childField struct{}
 
@@ -25,6 +29,8 @@ type baseComponent struct {
 	MaxLength int
 	Value     string
 	IsComp    bool
+	logger.Logger
+	packer Packer
 }
 
 func (b *baseComponent) GetKey() int {
